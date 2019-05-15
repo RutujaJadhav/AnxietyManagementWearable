@@ -1,0 +1,188 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: #000000;
+}
+p {
+  margin-top: 1rem;
+}
+a:hover {
+  color:#23527c;
+}
+a:visited {
+  color: #8d75a3;
+}
+body {
+  background: linear-gradient( rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) ), url('http://total-event.com/wp-content/uploads/2018/01/blog-1.jpg');
+  
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; 
+  
+  margin: 1rem;
+  padding: 1rem;
+  font-family: sans-serif;
+  max-width: 28rem;
+  margin: 0 auto;
+  position: relative;
+}
+#controls {
+  display: flex;
+  margin-top: 2rem;
+}
+button {
+  flex-grow: 1;
+  height: 2.5rem;
+  min-width: 2rem;
+  border: none;
+  border-radius: 0.15rem;
+  background: #604484;
+  margin-left: 2px;
+  box-shadow: inset 0 -0.15rem 0 rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color:#ffffff;
+  font-weight: bold;
+  font-size: 1rem;
+}
+button:hover, button:focus {
+  outline: none;
+  background: #c72d1c;
+}
+button::-moz-focus-inner {
+  border: 0;
+}
+button:active {
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  line-height: 3rem;
+}
+button:disabled {
+  pointer-events: none;
+  background: lightgray;
+}
+button:first-child {
+  margin-left: 0;
+}
+audio {
+  display: block;
+  width: 100%;
+  margin-top: 0.2rem;
+}
+li {
+  list-style: none;
+  margin-bottom: 1rem;
+}
+#formats {
+  margin-top: 0.5rem;
+  font-size: 80%;
+}
+
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
+
+/* --------------------CSS----------------- */
+
+body {
+	color:#fff;
+  
+	font: 16px 'Open Sans', sans-serif;
+}
+
+.box {
+	background: linear-gradient(#526494, #604484);
+	margin: 50px auto 0;
+	border-radius: 5px;
+  opacity:0.8;
+	
+}
+
+.box__header {
+	padding: 1px 25px;
+	position: relative;
+}
+
+.box__header-title {
+	color: #fff;
+	font-size: 18px;
+}
+
+.box__body {
+	padding: 0 25px;
+}
+
+/* STATS */
+
+.stats {
+	color: #fff;
+	position: relative;
+	padding-bottom: 25px;
+}
+
+.stats__amount {
+	font-size: 42px;
+	font-weight: bold;
+	line-height: 1.2;
+}
+
+.stats__caption {
+	font-size: 18px;
+
+}
+
+.stats__change {
+	position: absolute;
+	top: 10px;
+	right: 0;
+	text-align: right;
+	color: #B1B7C8;
+}
+
+.stats__value {
+	font-size: 18px;
+}
+
+.stats__period {
+	font-size: 14px;
+}
+
+.stats__value--positive {
+	color: #AEDC6F;
+}
+
+.stats__value--negative {
+	color: #FB5055;
+}
+
+.stats--main .stats__amount {
+	font-size: 54px;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 105%;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
