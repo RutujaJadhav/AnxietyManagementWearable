@@ -274,7 +274,7 @@ def mysppron(m,p):
     # print(path)
     try:
         objects= run_file(sourcerun, -20, 2, 0.3, "yes",sound,path, 80, 400, 0.01, capture_output=True)
-        # print (objects[0]) # This will print the info from the sound object, and objects[0] is a parselmouth.Sound object
+        print (objects[0]) # This will print the info from the sound object, and objects[0] is a parselmouth.Sound object
         z1=str( objects[1]) # This will print the info from the textgrid object, and objects[1] is a parselmouth.Data object with a TextGrid inside
         z2=z1.strip().split()
         z3=int(z2[13]) # will be the integer number 10
@@ -283,9 +283,10 @@ def mysppron(m,p):
         a=np.array(db)
         b=np.mean(a)*100/10
         # print ("Pronunciation_posteriori_probability_score_percentage= :%.2f" % (b))
+        return b
     except:
         print ("Try again the sound of the audio was not clear")
-    return b
+    
 
 def myspgend(m,p):
     sound=p+"/"+m+".wav"

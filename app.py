@@ -48,6 +48,8 @@ def process():
     # calculate difference between current and previous speech
     features_diff = calculate_difference(features, prev_speech) 
 
+    db.child("speech_features").child("previous").set(features)
+
     return render_template("result.html", result = features_diff)
 
 
