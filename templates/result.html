@@ -13,7 +13,6 @@
 
     <div id="controls">
     <a href=# id=recordButton><button>Record</button></a>
-  	 <button id="pauseButton">Pause</button>
   	 <button id="stopButton">Stop</button>
     <a href=# id=processButton><button onclick="location.href='http://127.0.0.1:5000/process';">Process</button></a>
     </div>
@@ -32,8 +31,12 @@
       Analysis results of your speech 
       <div class="stats__amount"> {{ result.duration }} </div>
       <div class="stats__caption tooltip">Time duration
- <span class="tooltiptext">You spoke for this time in minutes and seconds.</span>     
- </div>
+        <span class="tooltiptext">You spoke for this time in minutes and seconds.</span>     
+      </div>
+      <div class="stats__change">
+          <div class="stats__value"> {{ result.duration_diff }}%</div>
+          <div class="stats__period">from usual</div>
+        </div>
       
      
     </div>
@@ -44,7 +47,7 @@
         <span class="tooltiptext">Average number of syllables used per second. Typical range is...</span>  
       </div>
       <div class="stats__change">
-        <div class="stats__value stats__value--negative">-12%</div>
+        <div class="stats__value">{{ result.articulation_diff }}%</div>
         <div class="stats__period">from usual</div>
       </div>
     </div>
@@ -53,7 +56,7 @@
       <div class="stats__amount">{{ result.filler }}</div>
       <div class="stats__caption">Number of pauses and filler words</div>
       <div class="stats__change">
-        <div class="stats__value">+7%</div>
+        <div class="stats__value"> {{ result.filler_diff}}% </div>
         <div class="stats__period">from usual</div>
       </div>
     </div>
@@ -62,7 +65,7 @@
       <div class="stats__amount">{{ result.speech_rate }}</div>
       <div class="stats__caption">Rate of speech</div>
       <div class="stats__change">
-        <div class="stats__value">+3%</div>
+        <div class="stats__value"> {{ result.speech_rate_diff }}%</div>
         <div class="stats__period">from usual</div>
       </div>
     </div>
@@ -70,7 +73,7 @@
       <div class="stats__amount">{{ result.pronunciation }}</div>
       <div class="stats__caption">Pronounciation score</div>
       <div class="stats__change">
-        <div class="stats__value">+3%</div>
+        <div class="stats__value"> {{ result.pronunciation_diff }}%</div>
         <div class="stats__period">from usual</div>
       </div>
     </div>
@@ -83,19 +86,6 @@
     
   </body>
 </html>
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type=text/javascript>
-        $(function() {
-          $('a#recordButton').bind('click', function() {
-            $.getJSON('/background_process_test',
-                function(data) {
-              //do nothing
-            });
-            return false;
-          });
-        });
-</script>
 
 <script type=text/javascript>
         $(function() {

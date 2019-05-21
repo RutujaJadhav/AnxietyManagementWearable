@@ -9,8 +9,12 @@ import numpy as np
 from datetime import datetime
 import contextlib
 
-# os.chdir("/Users/louis/Google Drive/adele-rutuja-louis/data/")
 
+"""
+Records audio from local mic for given duration
+param: duration - length of recording; chunk - size of each audio byte (?); channels - number of channels for audio recording; rate - sampling rate of audio recording; outfile - filename for audio recording
+return: no object returned, audio recording written to local working directory
+"""
 
 def record_audio(duration, chunk = 1024, channels = 2, rate = 44100, outfile = "output.wav"):
     FORMAT = pyaudio.paInt16  # declare audio format
@@ -44,6 +48,11 @@ def record_audio(duration, chunk = 1024, channels = 2, rate = 44100, outfile = "
     wf.writeframes(b''.join(frames))    # write recorded audio from array to .wav file
     wf.close()  # close .wav file
 
+"""
+Calculates the audio features of a speech
+param: file - name of speech audio file, must be in .wav format; audio_path - path to speech audio file
+return:  dictionary containing the audio features of the file
+"""
 def calculate_features(file, audio_path):
     if ".wav" in file:   # if filename still contains ".wav" extract just the filename
         filename = file.split(".wav")[0]
@@ -55,10 +64,35 @@ def calculate_features(file, audio_path):
         minutes = int(round((frames / float(rate))/60, 0))
         duration = str(minutes) + ":" + str(seconds)
 
-    pronunciation = mysppron(filename, audio_path)      #Calculate the pronunciation posteriori probablity score
+    pronunciation = round(mysppron(filename, audio_path),2)      #Calculate the pronunciation posteriori probablity score
     articulation = myspatc(filename, audio_path)    # Calculate the articulation (speed) syllables/sec
     filler = mysppaus(filename, audio_path)     # Calculate the number of pauses/filler words used
     speech_rate = myspsr(filename, audio_path)    # Calculate the rate of speech
     
     features = {'pronunciation' : pronunciation, 'articulation' : articulation, 'filler' : filler, 'speech_rate' : speech_rate, "duration" : duration}
     return features
+
+""" 
+Calculates the difference between the features of two speeches
+param: current - dictionary containing features from current speech; previous - dictionary containing features from previous speech
+return: dictionary containing percent difference between current and previous features
+"""
+def calculate_difference(current, previous):
+
+    # get prev speech duration in seconds
+    prev_dur = (int(previous['duration'].split(":")[0])*60) + int(previous['duration'].split(":")[1]) 
+
+    # get curr speech duration in seconds
+    curr_dur = (int(current['duration'].split(":")[0])*60) + int(current['duration'].split(":")[1]) 
+
+
+    # Save difference data into dictionary
+    feat_diff = {'pronunciation_diff': round(((current['pronunciation'] - previous["pronunciation"])/previous["pronunciation"]) * 100, 2),
+                'articulation_diff': round(((current['articulation'] - previous["articulation"])/previous["articulation"]) * 100, 2),
+                'filler_diff': round(((current['filler'] - previous["filler"])/previous["filler"]) * 100, 2),
+                'speech_rate_diff': round(((current['speech_rate'] - previous["speech_rate"])/previous["speech_rate"]) * 100, 2),
+                "duration_diff": round(((curr_dur - prev_dur)/prev_dur) * 100, 2)}
+    
+    current.update(feat_diff)
+       
+    return current

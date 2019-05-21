@@ -1,7 +1,6 @@
-
+//webkitURL is deprecated but nevertheless
 URL = window.URL || window.webkitURL;
 
-var dlink;
 var gumStream; 						//stream from getUserMedia()
 var rec; 							//Recorder.js object
 var input; 							//MediaStreamAudioSourceNode we'll be recording
@@ -10,34 +9,72 @@ var input; 							//MediaStreamAudioSourceNode we'll be recording
 var AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext //audio context to help us record
 
-var processButton = document.getElementById("processButton");
 var recordButton = document.getElementById("recordButton");
 var stopButton = document.getElementById("stopButton");
-var pauseButton = document.getElementById("pauseButton");
+var processButton = document.getElementById("processButton");
 
-
-recordButton.addEventListener("click",startRecording);
+//add events to those 2 buttons
+recordButton.addEventListener("click", startRecording);
 stopButton.addEventListener("click", stopRecording);
-pauseButton.addEventListener("click", pauseRecording);
-processButton.addEventListener("click", startProcessing);
 
 function startRecording() {
 	console.log("recordButton clicked");
-}
 
-function pauseRecording(){
-	console.log("pauseButton clicked rec.recording=",rec.recording );
-	if (rec.recording){
-		//pause
-		rec.stop();
-		pauseButton.innerHTML="Resume";
-	}else{
-		//resume
+	/*
+		Simple constraints object, for more advanced audio features see
+		https://addpipe.com/blog/audio-constraints-getusermedia/
+	*/
+    
+    var constraints = { audio: true, video:false }
+
+ 	/*
+    	Disable the record button until we get a success or fail from getUserMedia() 
+	*/
+
+	recordButton.disabled = true;
+	stopButton.disabled = false;
+
+	/*
+    	We're using the standard promise based getUserMedia() 
+    	https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+	*/
+
+	navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+		console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
+
+		/*
+			create an audio context after getUserMedia is called
+			sampleRate might change after getUserMedia is called, like it does on macOS when recording through AirPods
+			the sampleRate defaults to the one set in your OS for your playback device
+
+		*/
+		audioContext = new AudioContext();
+		/*  assign to gumStream for later use  */
+		gumStream = stream;
+		
+		/* use the stream */
+		input = audioContext.createMediaStreamSource(stream);
+
+		/* 
+			Create the Recorder object and configure to record mono sound (1 channel)
+			Recording 2 channels  will double the file size
+		*/
+		rec = new Recorder(input,{numChannels:1})
+
+		//start the recording process
 		rec.record()
-		pauseButton.innerHTML="Pause";
 
-	}
+		console.log("Recording started");
+
+	}).catch(function(err) {
+		  //enable the record button if getUserMedia() fails
+		console.log("DID SOMEHTING BREAK?")
+		console.log(err)
+    	recordButton.disabled = false;
+    	stopButton.disabled = true;
+	});
 }
+
 
 function stopRecording() {
 	console.log("stopButton clicked");
@@ -45,10 +82,7 @@ function stopRecording() {
 	//disable the stop button, enable the record too allow for new recordings
 	stopButton.disabled = true;
 	recordButton.disabled = false;
-	pauseButton.disabled = true;
 
-	//reset button just in case the recording is stopped while paused
-	pauseButton.innerHTML="Pause";
 	
 	//tell the recorder to stop the recording
 	rec.stop();
@@ -56,10 +90,8 @@ function stopRecording() {
 	//stop microphone access
 	gumStream.getAudioTracks()[0].stop();
 
-	//create the wav blob and pass it on to createDownloadLink
-	rec.exportWAV(createDownloadLink);
-  console.log(dlink);
-  
+	//send wav blob to a function which invokes fetch
+	rec.exportWAV(sendData);
 }
 
 function createDownloadLink(blob) {
@@ -70,17 +102,17 @@ function createDownloadLink(blob) {
 	var link = document.createElement('a');
 
 	//name of .wav file to use during upload and download (without extendion)
-	var filename = "peace-audio";
+	var filename = new Date().toISOString();
 
 	//add controls to the <audio> element
 	au.controls = true;
 	au.src = url;
+
+	//save to disk link
 	link.href = url;
 	link.download = filename+".wav"; //download forces the browser to donwload the file using the  filename
-	link.innerHTML = "Process";
+	link.innerHTML = "Save to disk";
 
-  dlink=url;
-  
 	//add the new audio element to li
 	li.appendChild(au);
 	
@@ -112,16 +144,14 @@ function createDownloadLink(blob) {
 	//add the li element to the ol
 	recordingsList.appendChild(li);
 }
-/*
-//to slice recordings in intervals of 5 
-function vrstartRecording(){
-  setInterval(function(){
-    startRecording();
-  setTimeout(function(){
- stopRecording();  
-    },10000);
-  },10000);
-  
-  
-};
-*/
+
+//send wav blob to a function which invokes fetch
+// rec.exportWAV(sendData);
+
+function sendData(blob) {
+	// sends data to flask url /messages as a post with data blob - in format for wav file, hopefully. it is a promise
+	fetch("/record", {
+		method: "post",
+		body: blob
+	})
+}

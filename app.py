@@ -1,29 +1,54 @@
-from flask import Flask, render_template
+from flask import Flask, make_response, request, Blueprint, render_template, redirect, url_for, send_from_directory, flash
 from speech_analysis import *
+import pyrebase
 import os
 app = Flask(__name__)
-os.getcwd()
+# os.getcwd()
 
+config = {
+    "apiKey": "AIzaSyBR2lMqSAavdwi-JKr_5FQ64GDQFjtRjAY",
+    "authDomain": "anxietywearable.firebaseapp.com",
+    "databaseURL": "https://anxietywearable.firebaseio.com",
+    "storageBucket": "anxietywearable.appspot.com",
+}
 
+# Initialize firebase
+firebase = pyrebase.initialize_app(config)
+
+# Read data
+db = firebase.database()
+
+# Get previous speech features
+prev_speech = db.child("speech_features").child("previous").get().val()
+
+# Landing page
 @app.route('/')
 def index():
     return render_template("index.html")
 
 
-#background process happening without any refreshing
-@app.route('/record')
+# Record audio
+@app.route('/record', methods = ['POST'])
 def record():
-    print("Hello")
-    record_audio(30)
-    return("nothing")
+    f = open('./file.wav', 'wb')
+    f.write(request.data)
+    print("GOT HERE")
+    return("Binary message written!")
 
-#background process happening without any refreshing
+# Process speech
 @app.route('/process')
 def process():
-    print("started processing")
-    features = calculate_features("output.wav", "/Users/louis/Google Drive/adele-rutuja-louis/data")
-    print("finished processing")
-    return render_template("result.html", result = features)
+
+    # get path of speech file
+    path = os.path.realpath("./file.wav").split("/file.wav")[0] 
+
+    # calculate features of speech
+    features = calculate_features("file.wav", path) 
+
+    # calculate difference between current and previous speech
+    features_diff = calculate_difference(features, prev_speech) 
+
+    return render_template("result.html", result = features_diff)
 
 
 if __name__ == "__main__":
