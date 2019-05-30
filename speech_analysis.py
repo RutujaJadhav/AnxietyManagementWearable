@@ -6,7 +6,7 @@ import pyrebase
 import pyaudio
 import wave
 import numpy as np
-from datetime import datetime
+import datetime
 import contextlib
 
 
@@ -61,8 +61,7 @@ def calculate_features(file, audio_path):
         frames = f.getnframes()
         rate = f.getframerate()
         seconds = int(frames / float(rate))
-        minutes = int(round((frames / float(rate))/60, 0))
-        duration = str(minutes) + ":" + str(seconds)
+        duration = str(datetime.timedelta(seconds=seconds))
 
     pronunciation = round(mysppron(filename, audio_path),2)      #Calculate the pronunciation posteriori probablity score
     articulation = myspatc(filename, audio_path)    # Calculate the articulation (speed) syllables/sec
@@ -78,12 +77,12 @@ param: current - dictionary containing features from current speech; previous - 
 return: dictionary containing percent difference between current and previous features
 """
 def calculate_difference(current, previous):
-
+    # print(previous)
     # get prev speech duration in seconds
-    prev_dur = (int(previous['duration'].split(":")[0])*60) + int(previous['duration'].split(":")[1]) 
+    prev_dur = (int(previous['duration'].split(":")[1])*60) + int(previous['duration'].split(":")[2]) 
 
     # get curr speech duration in seconds
-    curr_dur = (int(current['duration'].split(":")[0])*60) + int(current['duration'].split(":")[1]) 
+    curr_dur = (int(current['duration'].split(":")[1])*60) + int(current['duration'].split(":")[2]) 
 
 
     # Save difference data into dictionary
