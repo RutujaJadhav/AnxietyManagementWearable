@@ -6,7 +6,7 @@ app = Flask(__name__)
 # os.getcwd()
 
 config = {
-    "apiKey": "",
+    "apiKey": "AIzaSyBR2lMqSAavdwi-JKr_5FQ64GDQFjtRjAY",
     "authDomain": "anxietywearable.firebaseapp.com",
     "databaseURL": "https://anxietywearable.firebaseio.com",
     "storageBucket": "anxietywearable.appspot.com",
