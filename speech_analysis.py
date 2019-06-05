@@ -1,5 +1,5 @@
 # mysp=__import__("my-voice-analysis")
-from pydub import AudioSegment
+# from pydub import AudioSegment
 from my_audio_analysis import *
 import os
 import pyrebase
@@ -16,37 +16,37 @@ param: duration - length of recording; chunk - size of each audio byte (?); chan
 return: no object returned, audio recording written to local working directory
 """
 
-def record_audio(duration, chunk = 1024, channels = 2, rate = 44100, outfile = "output.wav"):
-    FORMAT = pyaudio.paInt16  # declare audio format
-    p = pyaudio.PyAudio()   # initialize PyAudio object
+# def record_audio(duration, chunk = 1024, channels = 2, rate = 44100, outfile = "output.wav"):
+#     FORMAT = pyaudio.paInt16  # declare audio format
+#     p = pyaudio.PyAudio()   # initialize PyAudio object
 
-    # Open audio stream with declared options
-    stream = p.open(format=FORMAT,
-                    channels=channels,
-                    rate=rate,
-                    input=True,
-                    frames_per_buffer=chunk)
+#     # Open audio stream with declared options
+#     stream = p.open(format=FORMAT,
+#                     channels=channels,
+#                     rate=rate,
+#                     input=True,
+#                     frames_per_buffer=chunk)
 
-    print("* started recording")
+#     print("* started recording")
 
-    frames = [] # initialize array to contain audio data
+#     frames = [] # initialize array to contain audio data
 
-    # Set loop to execute for desired recording length
-    for i in range(0, int(rate / chunk * duration)):
-        data = stream.read(chunk)  # read audio data
-        frames.append(data)     # append recorded audio data to array
+#     # Set loop to execute for desired recording length
+#     for i in range(0, int(rate / chunk * duration)):
+#         data = stream.read(chunk)  # read audio data
+#         frames.append(data)     # append recorded audio data to array
 
-    print("* done recording")
-    stream.stop_stream() # stop audio stream
-    stream.close()  # close audio stream
-    p.terminate()   # terminate PyAudio object
+#     print("* done recording")
+#     stream.stop_stream() # stop audio stream
+#     stream.close()  # close audio stream
+#     p.terminate()   # terminate PyAudio object
 
-    wf = wave.open(outfile, 'wb')  # declare .wav output file
-    wf.setnchannels(channels)   # set number of audio output channels
-    wf.setsampwidth(p.get_sample_size(FORMAT))  # set sample width for recording
-    wf.setframerate(rate)   # set recording frame rate
-    wf.writeframes(b''.join(frames))    # write recorded audio from array to .wav file
-    wf.close()  # close .wav file
+#     wf = wave.open(outfile, 'wb')  # declare .wav output file
+#     wf.setnchannels(channels)   # set number of audio output channels
+#     wf.setsampwidth(p.get_sample_size(FORMAT))  # set sample width for recording
+#     wf.setframerate(rate)   # set recording frame rate
+#     wf.writeframes(b''.join(frames))    # write recorded audio from array to .wav file
+#     wf.close()  # close .wav file
 
 """
 Calculates the audio features of a speech
@@ -68,7 +68,12 @@ def calculate_features(file, audio_path):
     filler = mysppaus(filename, audio_path)     # Calculate the number of pauses/filler words used
     speech_rate = myspsr(filename, audio_path)    # Calculate the rate of speech
     
-    features = {'pronunciation' : pronunciation, 'articulation' : articulation, 'filler' : filler, 'speech_rate' : speech_rate, "duration" : duration}
+    features = {'pronunciation' : pronunciation, 
+                'articulation' : articulation, 
+                'filler' : filler, 
+                'speech_rate' : speech_rate, 
+                "duration" : duration}
+
     return features
 
 """ 
@@ -84,13 +89,24 @@ def calculate_difference(current, previous):
     # get curr speech duration in seconds
     curr_dur = (int(current['duration'].split(":")[1])*60) + int(current['duration'].split(":")[2]) 
 
+    try:
+        # Save difference data into dictionary
+        feat_diff = {'pronunciation_diff': round(((current['pronunciation'] - previous["pronunciation"])/previous["pronunciation"]) * 100, 2),
+                    'articulation_diff': round(((current['articulation'] - previous["articulation"])/previous["articulation"]) * 100, 2),
+                    'filler_diff': round(((current['filler'] - previous["filler"])/previous["filler"]) * 100, 2),
+                    'speech_rate_diff': round(((current['speech_rate'] - previous["speech_rate"])/previous["speech_rate"]) * 100, 2),
+                    "duration_diff": round(((curr_dur - prev_dur)/prev_dur) * 100, 2)}
+        print(feat_diff)
 
-    # Save difference data into dictionary
-    feat_diff = {'pronunciation_diff': round(((current['pronunciation'] - previous["pronunciation"])/previous["pronunciation"]) * 100, 2),
-                'articulation_diff': round(((current['articulation'] - previous["articulation"])/previous["articulation"]) * 100, 2),
-                'filler_diff': round(((current['filler'] - previous["filler"])/previous["filler"]) * 100, 2),
-                'speech_rate_diff': round(((current['speech_rate'] - previous["speech_rate"])/previous["speech_rate"]) * 100, 2),
-                "duration_diff": round(((curr_dur - prev_dur)/prev_dur) * 100, 2)}
+    except ZeroDivisionError as e:
+        feat_diff ={'pronunciation_diff': 2,
+                    'articulation_diff': 2,
+                    'filler_diff': 2,
+                    'speech_rate_diff': 2,
+                    "duration_diff": 2}
+
+        print(e)
+        print("Caught zero division error")
     
     current.update(feat_diff)
        
