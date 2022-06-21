@@ -19,7 +19,7 @@ six==1.12.0
 urllib3==1.25.3
 Flask==1.0.3
 protobuf==3.8.0
-numpy==1.16.4
+numpy==1.22.0
 pandas==0.24.2
 git+https://github.com/quicksell-louis/parselmouth-1.git
 pydub==0.23.1
